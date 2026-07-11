@@ -25,9 +25,20 @@ Direct voltage, global/board/chip MHz clocks, per-chip telemetry, and coin
 switching are not exposed by this adapter. Those operations deliberately fail
 instead of being approximated.
 
+## Protocol security limitation
+
+This adapter implements MicroBT's stock privilege API v2 wire protocol, which
+mandates an MD5-crypt-derived challenge response and AES-256-ECB for writable
+commands. Those primitives are compatibility requirements, not general-purpose
+cryptography, and cannot be replaced without breaking the protocol. ECB lacks
+modern confidentiality and integrity guarantees. Keep TCP 4028 reachable only
+from a segmented, trusted management network, use a unique non-default miner
+password where supported, and never reuse that password for another service.
+See the [security policy](../../SECURITY.md#protocol-mandated-legacy-cryptography)
+and the [official MicroBT v2.0.4 specification](https://www.whatsminer.com/file/WhatsminerAPI%20V2.0.4.pdf).
+
 The scanner fingerprints stock btminer before Bixbit and obtains a stable MAC
 from miner info, ARP, or a synthetic fallback. Passwords are tried only from the
 operator-configured scanner list. Never publish token/auth vectors generated
 from a real device password; committed fixtures must be synthetic and
 reproducible.
-

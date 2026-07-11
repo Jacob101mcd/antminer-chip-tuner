@@ -53,7 +53,9 @@ safe. Read the [support matrix](docs/support-matrix.md) before connecting hardwa
 
 Required Python dependencies include `cryptography`, used for encrypted writes to
 stock Whatsminer APIs, and `platformdirs`, used to select the per-user data directory.
-They are installed automatically with the project.
+They are installed automatically with the project. Those Whatsminer writes implement
+a vendor-mandated legacy protocol; review the [protocol security limitations](SECURITY.md#protocol-mandated-legacy-cryptography)
+before enabling control on a miner management network.
 
 ## Quick start
 

@@ -66,6 +66,29 @@ Authentication, the scanner, miner protocol handling, path validation, secret
 handling, and commands that change voltage, frequency, power, pools, or mining
 state are all considered security-sensitive.
 
+## Protocol-mandated legacy cryptography
+
+Two optional integrations require legacy primitives that must not be copied into
+new authentication, password-storage, or encryption code:
+
+- The stock Whatsminer v2 privilege API mandates an MD5-crypt-derived challenge
+  response and AES-256 in ECB mode for writable commands. The implementation is
+  confined to `tuner_app/miner/whatsminer.py` and exists only for wire-protocol
+  compatibility with the [official MicroBT v2.0.4 specification](https://www.whatsminer.com/file/WhatsminerAPI%20V2.0.4.pdf).
+  ECB does not provide modern message confidentiality or integrity. Keep miner
+  management interfaces on a segmented, trusted LAN; firewall TCP 4028 from
+  untrusted networks; replace vendor-default credentials where supported; and do
+  not reuse that password elsewhere.
+- MiningRigRentals API v2 mandates HMAC-SHA1 for `x-api-sign`. The client uses it
+  only for the documented request signature, over HTTPS, with a monotonically
+  increasing nonce, as required by the [MRR API v2 authentication specification](https://www.miningrigrentals.com/apidocv2).
+  Use a dedicated, least-privilege API credential and rotate it if exposure is
+  suspected.
+
+CodeQL findings for these exact compatibility calls are reviewed as accepted
+upstream-protocol constraints. The dashboard password remains protected with
+scrypt; neither MD5 nor SHA-1 is used to store local credentials.
+
 ## Hardware-safety disclosures
 
 A defect that can bypass configured thermal/power bounds, apply settings to the
