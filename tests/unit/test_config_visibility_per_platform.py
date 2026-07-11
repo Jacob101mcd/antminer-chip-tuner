@@ -42,7 +42,7 @@ class TestConfigVisibilityPerPlatform(TestCase):
 
     def test_visible_config_set_per_firmware(self):
         main_js_path = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        js_content = main_js_path.read_text()
+        js_content = main_js_path.read_text(encoding="utf-8")
 
         # Extract PLATFORM_CAPABILITIES
         _PLATFORM_CAPS_PATTERN = re.compile(

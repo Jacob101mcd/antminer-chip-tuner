@@ -41,7 +41,7 @@ class _FakeConfig:
 class TestPlatformCapabilitiesConsistency(unittest.TestCase):
     def setUp(self):
         js_file = Path(__file__).parent.parent.parent / "tuner_app" / "static" / "js" / "main.js"
-        self.js_content = js_file.read_text()
+        self.js_content = js_file.read_text(encoding="utf-8")
 
     def test_platform_capabilities_const_exists_in_main_js(self):
         match = _PLATFORM_CAPS_PATTERN.search(self.js_content)

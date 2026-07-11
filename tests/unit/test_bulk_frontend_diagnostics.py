@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-MAIN_JS = Path("tuner_app/static/js/main.js").read_text()
+MAIN_JS = Path("tuner_app/static/js/main.js").read_text(encoding="utf-8")
 
 
 def _slice_function_body(name_pattern, source, length=2000):

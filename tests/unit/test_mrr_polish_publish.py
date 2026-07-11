@@ -140,7 +140,7 @@ class TestMrrPolishAnnouncedFlag(unittest.TestCase):
             / "tuning_engine"
             / "engine.py"
         )
-        content = src.read_text()
+        content = src.read_text(encoding="utf-8")
         pattern = re.compile(
             r"^\s+self\._mrr_polish_announced\s*=\s*False\s*(?:#.*)?$",
             re.MULTILINE,
@@ -294,7 +294,7 @@ class TestPolishAnnouncedClearsBetweenVoltages(unittest.TestCase):
             / "tuning_engine"
             / "chip_tune_orchestration.py"
         )
-        content = src.read_text()
+        content = src.read_text(encoding="utf-8")
 
         polish_pattern = re.compile(
             r"^\s+engine\._mrr_polish_announced\s*=\s*False\s*(?:#.*)?$",
@@ -345,10 +345,10 @@ class TestMrrPolishLifecycleClears(unittest.TestCase):
     )
 
     def _count_phase6(self, filepath: pathlib.Path) -> int:
-        return len(self._PHASE6_PATTERN.findall(filepath.read_text()))
+        return len(self._PHASE6_PATTERN.findall(filepath.read_text(encoding="utf-8")))
 
     def _count_polish(self, filepath: pathlib.Path) -> int:
-        return len(self._POLISH_PATTERN.findall(filepath.read_text()))
+        return len(self._POLISH_PATTERN.findall(filepath.read_text(encoding="utf-8")))
 
     def test_engine_py_clears_match(self):
         """engine.py must have exactly as many uncommented _mrr_polish_announced = False

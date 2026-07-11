@@ -8,12 +8,12 @@ DASHBOARD_HTML = PROJECT_ROOT / "tuner_app" / "static" / "dashboard.html"
 
 
 def test_fleet_columns_const_exists_exactly_once():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"FLEET_COLUMNS\s*=\s*\[", content)) == 1
 
 
 def test_fleet_columns_has_all_thirteen_keys():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     match = re.search(r"FLEET_COLUMNS\s*=\s*(\[[\s\S]*?\]);", content)
     assert match is not None
     slice_content = match.group(1)
@@ -37,7 +37,7 @@ def test_fleet_columns_has_all_thirteen_keys():
 
 
 def test_fleet_columns_labels_present():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     match = re.search(r"FLEET_COLUMNS\s*=\s*(\[[\s\S]*?\]);", content)
     assert match is not None
     slice_content = match.group(1)
@@ -61,47 +61,47 @@ def test_fleet_columns_labels_present():
 
 
 def test_storage_key_versioned():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "tuner.fleetTable.columnPrefs.v1" in content
 
 
 def test_load_column_prefs_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function loadColumnPrefs\(", content)) == 1
 
 
 def test_save_column_prefs_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function saveColumnPrefs\(", content)) == 1
 
 
 def test_normalize_column_prefs_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function normalizeColumnPrefs\(", content)) == 1
 
 
 def test_state_pill_helper_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function statePillFor\(", content)) == 1
 
 
 def test_phase_pill_helper_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function phasePillFor\(", content)) == 1
 
 
 def test_profit_helper_defined():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function formatProfit\(", content)) == 1
 
 
 def test_render_table_header_function_exists():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function renderTableHeader\(", content)) == 1
 
 
 def test_render_table_header_called_in_boot():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     # The function containing the loadModelFilter() CALL SITE (startApp)
     # should also call renderTableHeader() near it so the empty <thead>
     # gets populated before the first render. The semicolon distinguishes
@@ -114,12 +114,12 @@ def test_render_table_header_called_in_boot():
 
 
 def test_get_active_columns_helper_exists():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function getActiveColumns\(", content)) == 1
 
 
 def test_dashboard_thead_collapsed():
-    dashboard_html = DASHBOARD_HTML.read_text()
+    dashboard_html = DASHBOARD_HTML.read_text(encoding="utf-8")
     # Locate the miner-table specifically (other tables exist in modals).
     table_match = re.search(
         r'<table id="miner-table">[\s\S]*?</table>',
@@ -139,7 +139,7 @@ def test_dashboard_thead_collapsed():
 
 
 def test_render_table_dynamic_colspan():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     start = content.find("function renderTable(")
     assert start >= 0
     end = content.find("\nfunction ", start + 1)
@@ -150,7 +150,7 @@ def test_render_table_dynamic_colspan():
 
 
 def test_dashboard_no_hardcoded_colspan_15():
-    dashboard_html = DASHBOARD_HTML.read_text()
+    dashboard_html = DASHBOARD_HTML.read_text(encoding="utf-8")
     # The pre-Unit-3 dashboard.html had `colspan="15"` in two places (the
     # static thead implicit count + the Loading… row). Both must be gone
     # post-Unit-3 — the thead is now dynamically populated, and the Loading
@@ -159,22 +159,22 @@ def test_dashboard_no_hardcoded_colspan_15():
 
 
 def test_open_column_filter_modal_function_exists():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function openColumnFilterModal\(", content)) == 1
 
 
 def test_apply_column_preset_function_exists():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function applyColumnPreset\(", content)) == 1
 
 
 def test_submit_column_prefs_function_exists():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert len(re.findall(r"function submitColumnPrefs\(", content)) == 1
 
 
 def test_column_presets_const_with_four_presets():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "COLUMN_PRESETS" in content
     assert "default:" in content
     assert "compact:" in content
@@ -183,19 +183,19 @@ def test_column_presets_const_with_four_presets():
 
 
 def test_actions_object_has_column_filter_entries():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "openColumnFilterModal:" in content
     assert "applyColumnPreset:" in content
 
 
 def test_dashboard_has_columns_trigger_button():
-    content = DASHBOARD_HTML.read_text()
+    content = DASHBOARD_HTML.read_text(encoding="utf-8")
     assert 'data-action="openColumnFilterModal"' in content
     assert content.count('data-action="openColumnFilterModal"') == 1
 
 
 def test_four_preset_arg_names_present():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert 'data-arg-name="default"' in content
     assert 'data-arg-name="compact"' in content
     assert 'data-arg-name="thermals"' in content
@@ -203,7 +203,7 @@ def test_four_preset_arg_names_present():
 
 
 def test_fleet_columns_mac_entry_default_hidden():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     match = re.search(r"FLEET_COLUMNS\s*=\s*(\[[\s\S]*?\]);", content)
     assert match is not None
     slice_content = match.group(1)
@@ -212,7 +212,7 @@ def test_fleet_columns_mac_entry_default_hidden():
 
 
 def test_fleet_columns_only_mac_has_default_hidden():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     match = re.search(r"FLEET_COLUMNS\s*=\s*(\[[\s\S]*?\]);", content)
     assert match is not None
     slice_content = match.group(1)
@@ -222,7 +222,7 @@ def test_fleet_columns_only_mac_has_default_hidden():
 
 
 def test_normalize_column_prefs_uses_default_visible_semantic():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     # Extract the normalizeColumnPrefs function body.
     fn_match = re.search(r"function normalizeColumnPrefs\([\s\S]*?\n\}", content)
     assert fn_match is not None
@@ -232,7 +232,7 @@ def test_normalize_column_prefs_uses_default_visible_semantic():
 
 
 def test_column_presets_do_not_contain_mac():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     match = re.search(r"COLUMN_PRESETS\s*=\s*\{([\s\S]*?)\};", content)
     assert match is not None
     presets_body = match.group(1)

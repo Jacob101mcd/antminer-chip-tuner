@@ -7,18 +7,18 @@ MAIN_JS = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
 
 
 def test_isValidMacForBulk_helper_defined_exactly_once():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     matches = re.findall(r"function isValidMacForBulk\(", content)
     assert len(matches) == 1
 
 
 def test_filter_regex_includes_synth_pattern():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "^syn-[0-9a-fA-F]" in content
 
 
 def test_bulkAction_calls_validator():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     bulk_action_start = content.find("function bulkAction(")
     assert bulk_action_start != -1
     next_function_start = content.find("\nfunction ", bulk_action_start)
@@ -28,10 +28,10 @@ def test_bulkAction_calls_validator():
 
 
 def test_warning_banner_string_present():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "stale or malformed" in content or "malformed selection" in content
 
 
 def test_all_invalid_error_message_present():
-    content = MAIN_JS.read_text()
+    content = MAIN_JS.read_text(encoding="utf-8")
     assert "Please reselect by reloading the page" in content

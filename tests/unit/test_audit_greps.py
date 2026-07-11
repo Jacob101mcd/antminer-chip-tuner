@@ -281,7 +281,7 @@ class TestAuditGreps(TestCase):
         canonical MAC plumbing.
         """
         main_js = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        content = main_js.read_text()
+        content = main_js.read_text(encoding="utf-8")
         self.assertNotIn(
             "let minerIP",
             content,
@@ -297,7 +297,7 @@ class TestAuditGreps(TestCase):
         ``ips:`` does not appear in the body argument.
         """
         main_js = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        content = main_js.read_text()
+        content = main_js.read_text(encoding="utf-8")
         import re
 
         for m in re.finditer(r"fetchJSON\s*\(\s*['\"\`]\/tuner\/bulk\/[^'\"\`]+", content):
@@ -319,7 +319,7 @@ class TestAuditGreps(TestCase):
         /tuner/mrr/resync. Any literal ``ip:`` body field is a regression.
         """
         main_js = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        content = main_js.read_text()
+        content = main_js.read_text(encoding="utf-8")
         import re
 
         endpoints = [
@@ -933,7 +933,7 @@ class TestAuditGreps(TestCase):
 
     def test_phase_pill_stopped_red_present(self) -> None:
         css_path = PROJECT_ROOT / "tuner_app" / "static" / "css" / "overview.css"
-        content = css_path.read_text()
+        content = css_path.read_text(encoding="utf-8")
         pattern = (
             r"\.phase-pill\.stopped\s*\{[^}]*"
             r"rgba\(244,\s*67,\s*54,\s*0\.18\)[^}]*"
@@ -943,7 +943,7 @@ class TestAuditGreps(TestCase):
 
     def test_phase_pill_stopping_amber_present(self) -> None:
         css_path = PROJECT_ROOT / "tuner_app" / "static" / "css" / "overview.css"
-        content = css_path.read_text()
+        content = css_path.read_text(encoding="utf-8")
         pattern = (
             r"\.phase-pill\.stopping\s*\{[^}]*"
             r"rgba\(255,\s*193,\s*7,\s*0\.18\)[^}]*"
@@ -953,19 +953,19 @@ class TestAuditGreps(TestCase):
 
     def test_phase_pill_idle_muted_present(self) -> None:
         css_path = PROJECT_ROOT / "tuner_app" / "static" / "css" / "overview.css"
-        content = css_path.read_text()
+        content = css_path.read_text(encoding="utf-8")
         pattern = r"\.phase-pill\.idle\s*\{"
         self.assertRegex(content, pattern)
 
     def test_detail_tuner_bucket_span_present_in_dashboard_html(self) -> None:
         html_path = PROJECT_ROOT / "tuner_app" / "static" / "dashboard.html"
-        content = html_path.read_text()
+        content = html_path.read_text(encoding="utf-8")
         pattern = r'<span\s+id=["\']detail-tuner-bucket["\']'
         self.assertRegex(content, pattern)
 
     def test_main_js_updates_detail_tuner_bucket_element(self) -> None:
         js_path = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        content = js_path.read_text()
+        content = js_path.read_text(encoding="utf-8")
         # Check for the element ID reference
         self.assertRegex(content, r"detail-tuner-bucket")
         # Check for tuner_bucket reference within proximity (same logical block;
@@ -978,7 +978,7 @@ class TestAuditGreps(TestCase):
 
     def test_phase_pill_for_still_reads_tuner_bucket_in_main_js(self) -> None:
         js_path = PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js"
-        content = js_path.read_text()
+        content = js_path.read_text(encoding="utf-8")
         pattern = r"phasePillFor[^}]*m\.tuner_bucket"
         self.assertRegex(content, pattern)
 
@@ -1013,7 +1013,9 @@ class TestAuditGreps(TestCase):
         """
         import re
 
-        main_js = (PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js").read_text()
+        main_js = (PROJECT_ROOT / "tuner_app" / "static" / "js" / "main.js").read_text(
+            encoding="utf-8"
+        )
         target_categories = {
             "Voltage Settle",
             "V/F Exploration (dynamic state machine)",
