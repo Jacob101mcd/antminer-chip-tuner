@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 import subprocess
 from unittest import TestCase
 
@@ -20,24 +21,25 @@ class TestAuditGreps(TestCase):
         self.assertEqual(matches, "", "Expected empty stdout for firmware_type() check")
 
     def test_platform_tuple_consistency(self) -> None:
-        pattern = r'\("epic",\s*"bixbit",\s*"luxos",\s*"braiins"(,\s*"whatsminer")?\)'
-        cmd = [
-            "grep",
-            "-rE",
-            pattern,
-            "tuner_app/",
-            "--include=*.py",
-            "--exclude=constants.py",
-        ]
-        result = subprocess.run(cmd, capture_output=True, cwd=PROJECT_ROOT)
-        matches = result.stdout.decode()
-        self.assertEqual(
-            result.returncode,
-            1,
-            f"Inline platform-tuple literals found in tuner_app/ "
-            f"(use `_PLATFORMS` from `tuner_app.constants` instead):\n{matches}",
+        pattern = re.compile(
+            r'\("epic",\s*"bixbit",\s*"luxos",\s*"braiins"'
+            r'(,\s*"whatsminer")?\)'
         )
-        self.assertEqual(matches, "", "Expected empty stdout for platform-tuple literal check")
+        matches = []
+        for path in sorted((PROJECT_ROOT / "tuner_app").rglob("*.py")):
+            if path.name == "constants.py":
+                continue
+            content = path.read_text(encoding="utf-8")
+            for match in pattern.finditer(content):
+                line_number = content.count("\n", 0, match.start()) + 1
+                relative = path.relative_to(PROJECT_ROOT)
+                matches.append(f"{relative}:{line_number}:{match.group(0)}")
+        self.assertEqual(
+            matches,
+            [],
+            "Inline platform-tuple literals found in tuner_app/ "
+            "(use `_PLATFORMS` from `tuner_app.constants` instead):\n" + "\n".join(matches),
+        )
 
     def test_no_silent_epic_fallbacks_in_registration_boundaries(self) -> None:
         cmd = [
@@ -792,27 +794,21 @@ class TestAuditGreps(TestCase):
         vendor's algorithm, dispatched via ``tuning_strategy()``, and a
         vendor label there is documentation, not noise.
         """
-        cmd = [
-            "grep",
-            "-rnE",
-            r'"Bixbit:|"LuxOS:|"Braiins:|"ePIC:',
-            "tuner_app/tuning_engine/",
-            "--include=*.py",
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=PROJECT_ROOT)
         # Vendor-scoped modules are exempt — they implement one vendor's
         # entire algorithm and a vendor label there is informative.
         VENDOR_SCOPED = {"braiins_phases.py"}
         offending = []
-        for line in result.stdout.splitlines():
-            try:
-                path, _, _ = line.split(":", 2)
-            except ValueError:
+        pattern = re.compile(r'"(?:Bixbit|LuxOS|Braiins|ePIC):')
+        tuning_root = PROJECT_ROOT / "tuner_app" / "tuning_engine"
+        for path in sorted(tuning_root.rglob("*.py")):
+            if path.name in VENDOR_SCOPED:
                 continue
-            filename = path.rsplit("/", 1)[-1]
-            if filename in VENDOR_SCOPED:
-                continue
-            offending.append(line)
+            for line_number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), start=1
+            ):
+                if pattern.search(line):
+                    relative = path.relative_to(PROJECT_ROOT)
+                    offending.append(f"{relative}:{line_number}:{line}")
         self.assertEqual(
             offending,
             [],

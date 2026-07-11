@@ -743,8 +743,9 @@ class TestSecureConfigPersistence(unittest.TestCase):
         ):
             persistence.save_config_to_disk()
 
-        self.assertEqual(stat.S_IMODE(os.stat(self.data_dir).st_mode), 0o700)
-        self.assertEqual(stat.S_IMODE(os.stat(self.config_file).st_mode), 0o600)
+        if os.name != "nt":
+            self.assertEqual(stat.S_IMODE(os.stat(self.data_dir).st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(os.stat(self.config_file).st_mode), 0o600)
         with open(self.config_file, encoding="utf-8") as f:
             payload = json.load(f)
         # The protected config is the one permitted persistence boundary.
