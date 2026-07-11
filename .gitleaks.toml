@@ -1,0 +1,26 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Scanner API-port documentation is not a credential"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^tuner_app/scanner/discover\.py$''']
+regexes = ['''^\s*api_port: ePIC/Bixbit/LuxOS API port \(typically 4028\)\. Braiins OS typically\s*$''']
+
+[[allowlists]]
+description = "Published synthetic Whatsminer authentication test vector"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^tests/fixtures/whatsminer_auth_vectors\.json$''']
+regexes = ['''^\s*"expected_aeskey_hex": "82973047b2f41349e09622da616b962de94aeac6bad21285bc35c6769dd97fe5",\s*$''']
+
+[[allowlists]]
+description = "Published synthetic setup password used only by authentication tests"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''^tests/(?:integration/test_route_auth|unit/test_http_security)\.py$''']
+regexes = ['''\{"password"\s*:\s*"abcd1234wxyz"\}''']

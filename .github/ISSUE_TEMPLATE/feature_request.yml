@@ -1,0 +1,46 @@
+name: Feature request
+description: Propose a focused, safe improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Operator problem
+      description: Describe the problem and who encounters it without including private deployment details.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe observable behavior, not only an implementation.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Scope
+      options:
+        - platform-independent
+        - epic
+        - luxos
+        - braiins
+        - bixbit
+        - whatsminer
+        - new platform
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety, privacy, and compatibility impact
+      description: Explain new miner commands, data collection, network exposure, or failure modes.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+

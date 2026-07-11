@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://github.com/Jacob101mcd/antminer-chip-tuner/security/advisories/new
+    about: Report vulnerabilities and safety-control bypasses privately.
+  - name: Support and data-sanitization guide
+    url: https://github.com/Jacob101mcd/antminer-chip-tuner/blob/main/SUPPORT.md
+    about: Read this before sharing logs or requesting troubleshooting help.
+

@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "antminer-chip-tuner"
+version = "0.1.0"
+description = "Efficiency tuning for supported Bitcoin ASIC miners"
+authors = [{ name = "Jacob McDaniel" }]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
+requires-python = ">=3.11"
+readme = "README.md"
+keywords = ["antminer", "asic", "bitcoin", "mining", "tuning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+# cryptography: AES-256-ECB for stock Whatsminer (MicroBT) API encrypted writes
+dependencies = [
+    "cryptography>=42.0",
+    "platformdirs>=4.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/Jacob101mcd/antminer-chip-tuner"
+Documentation = "https://github.com/Jacob101mcd/antminer-chip-tuner#readme"
+Repository = "https://github.com/Jacob101mcd/antminer-chip-tuner"
+Issues = "https://github.com/Jacob101mcd/antminer-chip-tuner/issues"
+
+[project.scripts]
+antminer-chip-tuner = "tuner_app.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.9",
+]
+build = [
+    "build>=1.2",
+    "twine>=6.0",
+]
+audit = [
+    "pip-audit>=2.7",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["Independent-research-main"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# engine.py was moved verbatim from tuner.py and inherits the same one preserved
+# >100-char log line. Treated like tuner.py to keep the migration mechanical.
+"tuner_app/tuning_engine/engine.py" = ["E501", "I001"]
+# defaults.py holds the in-code CONFIG defaults dict literal extracted verbatim
+# from tuner.py. Many keys carry long inline comments that document operator-
+# visible tuning semantics; preserving them byte-identically requires E501.
+"tuner_app/config/defaults.py" = ["E501"]
+# v3→v4 migration tests carry descriptive docstrings that document the spec
+# contract (idempotency guards, file-rename invariants, partition rules).
+# Preserving the documentation value beats truncating to 100 chars.
+"tests/unit/test_v3_to_v4_migration.py" = ["E501"]
+"tests/unit/test_config_persistence.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tuner_app", "tuner_app.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+tuner_app = [
+    "static/dashboard.html",
+    "static/css/*.css",
+    "static/js/*.js",
+    "static/vendor/*.js",
+]

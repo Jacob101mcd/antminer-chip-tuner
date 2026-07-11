@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.uv-cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Log files
+*.log
+tuner.out
+
+# Optional repo-local runtime-data override. The normal default is the
+# platform-native per-user application-data directory.
+tuning_data/
+
+# Local scratch dir
+notes/
+
+# Auth cookie from tuner_session — never commit
+session.cookies
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo

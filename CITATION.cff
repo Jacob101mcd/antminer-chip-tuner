@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use Antminer Chip Tuner in research, please cite this software."
+title: "Antminer Chip Tuner"
+type: software
+authors:
+  - family-names: McDaniel
+    given-names: Jacob
+    alias: Jacob101mcd
+repository-code: "https://github.com/Jacob101mcd/antminer-chip-tuner"
+url: "https://github.com/Jacob101mcd/antminer-chip-tuner"
+license: Apache-2.0
+version: 0.1.0
+date-released: "2026-07-11"
+keywords:
+  - ASIC
+  - Antminer
+  - Whatsminer
+  - autotuning
+  - energy efficiency

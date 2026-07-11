@@ -1,0 +1,82 @@
+name: Bug report
+description: Report a reproducible defect with sanitized evidence.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Stop tuning first if hardware is unstable. Never post credentials, session cookies, real IP/MAC addresses, serial numbers, workers, wallets, account identifiers, or private site details. Report security or safety-control bypasses through the private security link instead.
+  - type: input
+    id: version
+    attributes:
+      label: Project version
+      description: Release tag or full commit hash.
+      placeholder: v0.1.0 or a full commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - epic
+        - luxos
+        - braiins
+        - bixbit
+        - whatsminer
+        - dashboard / platform-independent
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware and firmware
+      description: Model, hashboard topology, and firmware version only; omit serials and device identifiers.
+      placeholder: Antminer model, three boards, firmware version
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host environment
+      description: Operating system and Python version.
+      placeholder: Debian 13, Python 3.12.4
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include expected and actual behavior and the first point of failure.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Safe reproduction steps
+      description: Use documentation IPs and synthetic MACs; include the smallest configuration needed.
+      placeholder: |
+        1. Register 02:00:00:00:00:01 at 192.0.2.10
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized diagnostic excerpt
+      description: Paste only the short interval around the first error. Replace all operational identifiers and secrets.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety and privacy checks
+      options:
+        - label: Hardware is now stopped or in a known-safe state.
+          required: true
+        - label: I removed credentials, cookies, IP/MAC addresses, serials, hostnames, worker/wallet values, account identifiers, and site details.
+          required: true
+        - label: This is not a privately reportable security or safety-control vulnerability.
+          required: true
+

@@ -1,0 +1,80 @@
+.phase-indicator { display:flex; gap:8px; margin:12px 0; overflow:visible; }
+.phase-dot { width:24px; height:24px; border-radius:50%; background:var(--bg3); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:0.65em; font-weight:600; }
+.phase-dot.active { border-color:var(--accent); background:var(--accent); color:#fff; }
+.phase-dot.done { border-color:var(--green); background:var(--green); color:#fff; }
+.phase-detail { font-size:0.8em; color:var(--text2); margin-bottom:8px; min-height:1.2em; }
+.heatmap-container { position:relative; }
+.heatmap-canvas { width:100%; cursor:crosshair; }
+.heatmap-controls { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.heatmap-controls button { padding:4px 10px; font-size:0.75em; }
+.heatmap-controls button.active { background:var(--green); }
+.heatmap-split { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.heatmap-pane { min-width:0; }
+.heatmap-section-label { font-size:0.7em; color:var(--text2); margin:0 0 4px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+@media (max-width: 1100px) { .heatmap-split { grid-template-columns: 1fr; } }
+.log-container { height:300px; overflow-y:auto; background:var(--bg); border:1px solid var(--border); border-radius:4px; padding:8px; font-family:monospace; font-size:0.75em; line-height:1.5; }
+.log-line { color:var(--text2); }
+.chart-container { position:relative; height:200px; }
+
+/* ─── Metrics range selector (Phase B / B12) ─────────────────────────────── */
+.metrics-range-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: var(--bg2, var(--bg3, #2d3142));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.metrics-range-bar label { color: var(--text2); font-weight: 500; }
+.metrics-range-bar select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: inherit;
+}
+.metrics-range-custom { display: inline-flex; gap: 6px; align-items: center; color: var(--text2); }
+.metrics-range-custom input[type=datetime-local] {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font: inherit;
+}
+.metrics-range-status { color: var(--text2); font-size: 12px; margin-left: auto; }
+/* ── Phase V V/F Efficiency Surface (SVG) ── */
+#vf-surface-svg { display:block; width:100%; max-width:100%; font-family:inherit; }
+#vf-surface-svg text { fill:var(--text); }
+#vf-surface-svg .vf-axis-label { fill:var(--text2); font-size:10px; }
+#vf-surface-svg .vf-value-text { font-size:11px; font-weight:600; fill:#fff; pointer-events:none; }
+#vf-surface-svg .vf-glyph { font-size:14px; fill:var(--text2); pointer-events:none; text-anchor:middle; dominant-baseline:central; }
+#vf-surface-svg .vf-cell { cursor:pointer; transition:filter 0.1s; }
+#vf-surface-svg .vf-cell:hover { filter:brightness(1.18); }
+#vf-surface-svg .vf-cell.vf-focus { outline:2px solid var(--text); outline-offset:-2px; }
+#vf-surface-svg .vf-crosshair { stroke:#fff; stroke-width:1; opacity:0.22; pointer-events:none; }
+#vf-surface-svg .vf-measuring-ring { fill:none; stroke:var(--accent); stroke-width:2.5; animation:vfpulse 1.4s ease-in-out infinite; pointer-events:none; }
+@keyframes vfpulse { 0%,100% { stroke-opacity:0.45; } 50% { stroke-opacity:1; } }
+#vf-surface-svg .vf-measuring-dots circle { fill:var(--accent); opacity:0.3; animation:vfdot 1.2s ease-in-out infinite; pointer-events:none; }
+#vf-surface-svg .vf-measuring-dots circle:nth-child(2) { animation-delay:0.2s; }
+#vf-surface-svg .vf-measuring-dots circle:nth-child(3) { animation-delay:0.4s; }
+@keyframes vfdot { 0%,100% { opacity:0.25; } 40% { opacity:1; } }
+#vf-surface-svg .vf-winner-border { stroke:gold; stroke-width:3; fill:none; pointer-events:none; }
+#vf-surface-svg .vf-topk-border { stroke:var(--accent); stroke-width:3; fill:none; pointer-events:none; }
+#vf-surface-svg .vf-subcell rect { transition:filter 0.1s; }
+#vf-surface-svg .vf-subcell:hover rect { filter:brightness(1.25); }
+#vf-surface-svg .vf-subvalue { font-size:9px; font-weight:600; }
+#vf-surface-svg .vf-subvalue-tiny { font-size:7.5px; font-weight:600; }
+#vf-surface-svg .vf-remeasure-marker { fill:var(--accent); stroke:#fff; stroke-width:0.8; opacity:0.9; pointer-events:none; animation:vfqueue 2s ease-in-out infinite; }
+@keyframes vfqueue { 0%,100% { opacity:0.55; } 50% { opacity:1; } }
+/* ── Vendor-aware config form ─────────────────────────────────────────────── */
+/* Dimmed treatment for config inputs that don't apply to the miner's firmware. */
+/* Hide the per-chip heatmap tab (button + content) for miners without per-chip tuning support. */
+.hide-no-per-chip-tuning #tab-heatmap { display: none !important; }
+.hide-no-per-chip-tuning [data-action="switchTab"][data-arg-tab="heatmap"] { display: none !important; }
+/* Hide the Wattage Search (Braiins) chart for miners that do not use wattage_search strategy. */
+#view-detail.hide-no-wattage-search .wattage-chart-card { display: none !important; }

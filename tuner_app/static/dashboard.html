@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antminer Chip Tuner</title>
+<script src="/static/vendor/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<link rel="stylesheet" href="/static/css/overview.css">
+<link rel="stylesheet" href="/static/css/detail.css">
+</head>
+<body>
+<div id="modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:1500;align-items:center;justify-content:center">
+  <div id="modal-box" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;max-width:600px;width:90%;max-height:80vh;overflow:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 id="modal-title" style="margin:0"></h2>
+      <button class="secondary" data-action="closeModal" style="padding:4px 10px">×</button>
+    </div>
+    <div id="modal-body"></div>
+    <div id="modal-actions" style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end"></div>
+  </div>
+</div>
+<div id="view-login" class="login-overlay" style="display:none">
+  <div class="login-box">
+    <h1 id="login-title">Sign in</h1>
+    <div class="sub" id="login-sub">Enter the tuner password to continue.</div>
+    <form id="login-form" data-form-action="submitAuth">
+      <label for="login-password" id="login-password-label">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password" autofocus>
+      <div id="login-confirm-row" style="display:none">
+        <label for="login-confirm">Confirm password</label>
+        <input id="login-confirm" type="password" autocomplete="new-password">
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <div class="login-actions">
+        <button type="submit" id="login-submit">Sign in</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div id="view-overview" class="container" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h1 style="margin-bottom:0">Antminer Chip Tuner <span class="badge">Fleet Overview</span></h1>
+    <div class="auth-bar">
+      <button class="secondary" data-action="logout" title="Log out">Logout</button>
+    </div>
+  </div>
+
+  <!-- KPI row: totals + state charts -->
+  <div class="grid grid-6" id="kpi-row" style="margin-bottom:12px">
+    <div class="card">
+      <h2>Total Hashrate</h2>
+      <div class="kpi-value" id="kpi-hashrate">--</div>
+      <div class="kpi-sub" id="kpi-miner-count">--</div>
+    </div>
+    <div class="card">
+      <h2>Total Power</h2>
+      <div class="kpi-value" id="kpi-power">--</div>
+      <div class="kpi-sub">across active miners</div>
+    </div>
+    <div class="card">
+      <h2>Avg Efficiency</h2>
+      <div class="kpi-value" id="kpi-efficiency">--</div>
+      <div class="kpi-sub">total W / total TH/s</div>
+    </div>
+    <div class="card">
+      <h2>Total Profit</h2>
+      <div class="kpi-value" id="kpi-profit">--</div>
+      <div class="kpi-sub">$/day, across active miners</div>
+    </div>
+    <div class="card">
+      <h2>Tuner State</h2>
+      <div style="position:relative;height:120px"><canvas id="chart-tuner-state"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>Mining State</h2>
+      <div style="position:relative;height:120px"><canvas id="chart-mining-state"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Minerstat snapshot + profitability recompute -->
+  <div class="card" id="minerstat-card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2 style="margin:0 0 4px 0">Minerstat Snapshot</h2>
+        <div id="minerstat-meta" style="color:var(--text2);font-size:13px">No data — click "Fetch &amp; auto-apply" to load pricing &amp; network hashrate.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="secondary" data-action="openMinerstatSettings" title="Edit fleet-wide minerstat API key, coin, and auto-poll day">⚙ Settings</button>
+        <button data-action="minerstatFetchNow" title="Fetch fresh pricing/network data and auto-apply per-miner profit winners">Fetch &amp; auto-apply</button>
+      </div>
+    </div>
+    <div id="minerstat-coins" style="margin-top:8px;font-size:13px"></div>
+  </div>
+
+  <!-- MiningRigRentals auto-publish -->
+  <div class="card" id="mrr-card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2 style="margin:0 0 4px 0">MiningRigRentals</h2>
+        <div id="mrr-meta" style="color:var(--text2);font-size:13px">Disabled — configure credentials to auto-manage rig availability.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="secondary" data-action="openMRRSettings" title="Fleet-wide: enable/disable, API key/secret, default hashrate modifier %">⚙ Settings</button>
+        <button class="secondary" data-action="mrrTestConnection" title="Verify credentials by calling /whoami">Test Connection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter chips + add miner button -->
+  <div class="card" id="filter-row">
+    <div class="filter-group">
+      <span class="filter-label">Tuner</span>
+      <button class="chip active" data-filter="tuner" data-value="all">All</button>
+      <button class="chip" data-filter="tuner" data-value="idle">No tuner</button>
+      <button class="chip" data-filter="tuner" data-value="tuning">Tuning</button>
+      <button class="chip" data-filter="tuner" data-value="maintaining">Maintaining</button>
+      <button class="chip" data-filter="tuner" data-value="offline">Offline</button>
+      <button class="chip" data-filter="tuner" data-value="error">Error</button>
+      <button class="chip" data-filter="tuner" data-value="stopped">Stopped</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Mining</span>
+      <button class="chip active" data-filter="mining" data-value="all">All</button>
+      <button class="chip" data-filter="mining" data-value="mining">Mining</button>
+      <button class="chip" data-filter="mining" data-value="stopped">Not mining</button>
+      <button class="chip" data-filter="mining" data-value="unknown">Unknown</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Model</span>
+      <details id="model-filter-dropdown" class="model-filter">
+        <summary id="model-filter-summary" title="Filter the fleet table by miner model">All models</summary>
+        <div class="model-filter-menu" role="menu">
+          <div class="model-filter-actions">
+            <button type="button" class="secondary" data-action="modelFilterSelectAll" title="Show all models">All</button>
+            <button type="button" class="secondary" data-action="modelFilterClearAll" title="Hide all models">None</button>
+          </div>
+          <div id="model-filter-options"></div>
+        </div>
+      </details>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Platform</span>
+      <details id="platform-filter-dropdown" class="model-filter">
+        <summary id="platform-filter-summary" title="Filter the fleet table by firmware platform">All platforms</summary>
+        <div class="model-filter-menu" role="menu">
+          <div class="model-filter-actions">
+            <button type="button" class="secondary" data-action="platformFilterSelectAll" title="Show all platforms">All</button>
+            <button type="button" class="secondary" data-action="platformFilterClearAll" title="Hide all platforms">None</button>
+          </div>
+          <div id="platform-filter-options"></div>
+        </div>
+      </details>
+    </div>
+    <div class="filter-group">
+      <button id="open-column-filter" class="secondary" data-action="openColumnFilterModal" title="Show, hide, and reorder fleet table columns">Columns</button>
+    </div>
+    <div style="flex:1"></div>
+    <button id="open-network-settings" class="secondary" data-action="openNetworkSettings" aria-label="Network &amp; Scanner settings">&#9881;</button>
+  </div>
+
+  <!-- Bulk action toolbar -->
+  <div class="card" id="bulk-toolbar" style="display:none;margin-top:12px">
+    <span id="bulk-count" style="color:var(--text2);margin-right:12px">0 selected</span>
+    <button data-action="bulkAction" data-arg-name="start">Start Tuning</button>
+    <button data-action="bulkAction" data-arg-name="stop" class="danger">Stop Tuning</button>
+    <button data-action="bulkAction" data-arg-name="start_mining">Start Mining</button>
+    <button data-action="bulkAction" data-arg-name="stop_mining" class="danger">Stop Mining</button>
+    <button data-action="bulkAction" data-arg-name="reset_profile" class="secondary">Reset Profile</button>
+    <button data-action="bulkAction" data-arg-name="reboot" class="danger">Reboot</button>
+    <button data-action="openBulkSetPowerLimitModal" class="secondary">Set Power Limit</button>
+    <button data-action="bulkAction" data-arg-name="mrr_resync" class="secondary">MRR Resync</button>
+    <button data-action="bulkAction" data-arg-name="retune_voltage" class="secondary">Retune Voltage</button>
+    <button data-action="openBulkConfigModal" class="secondary">Apply Config</button>
+    <button data-action="openBulkPoolsModal" class="secondary">Set Pools</button>
+    <button data-action="bulkRemove" class="danger">Remove</button>
+    <button data-action="clearSelection" class="secondary">Clear</button>
+  </div>
+
+  <!-- Miner table -->
+  <div class="card" style="margin-top:12px;padding:0;overflow:auto">
+    <table id="miner-table">
+      <thead><tr></tr></thead>
+      <tbody id="miner-tbody">
+        <tr><td colspan="3" style="padding:16px;text-align:center;color:var(--text2)">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <details class="card" id="defaults-accordion" style="margin-top:12px" data-toggle-action="onDefaultsToggle">
+    <summary style="cursor:pointer;color:var(--text2)">Fleet Defaults <span style="color:var(--text2);font-size:0.85em">— per-platform tuning defaults</span></summary>
+    <div id="defaults-platform-bar" style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <label for="defaults-platform" style="margin:0;color:var(--text2);font-size:0.85em;white-space:nowrap">Platform:</label>
+      <select id="defaults-platform" data-change-action="defaultsPlatformChange" style="width:auto">
+        <option value="epic">ePIC (Bitmain)</option>
+        <option value="bixbit">Bixbit (Whatsminer)</option>
+        <option value="luxos">LuxOS</option>
+        <option value="braiins">Braiins OS</option>
+        <option value="whatsminer">Whatsminer (Stock)</option>
+      </select>
+    </div>
+    <div id="defaults-form" style="margin-top:12px"></div>
+  </details>
+
+</div>
+
+<div id="view-detail" class="container" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="secondary" data-action="navigateToOverview" title="Back to overview">← Back</button>
+      <h1 style="margin-bottom:0">Antminer Chip Tuner <a class="badge" id="detail-ip-badge" href="#" target="_blank" rel="noopener" title="Open miner web UI in a new tab">--</a></h1>
+      <span id="detail-hostname" style="color:var(--text2);font-size:0.85em"></span>
+      <span id="detail-rental-status"></span>
+    </div>
+    <div class="auth-bar">
+      <button class="secondary" data-action="changeMinerPassword" title="Rotate the firmware password stored for this miner">Change password</button>
+      <button class="secondary" id="btn-set-mac" data-action="openSetMacModal" title="The probe couldn't read this miner's MAC. Set it manually so per-platform tuning data follows the device through DHCP / firmware-flash events." style="display:none">Set real MAC</button>
+      <button class="secondary" data-action="logout" title="Log out">Logout</button>
+    </div>
+  </div>
+
+  <div id="offline-banner" class="offline-banner" style="display:none"></div>
+
+  <div class="grid grid-3" style="margin-bottom:12px" id="detail-stats-grid">
+    <div class="card">
+      <h2>Miner Status</h2>
+      <div class="stat-row"><span class="stat-label">State</span><span class="stat-value" id="s-state">--</span></div>
+      <div class="stat-row"><span class="stat-label">Hashrate</span><span class="stat-value" id="s-hashrate">--</span></div>
+      <div class="stat-row"><span class="stat-label">Power</span><span class="stat-value" id="s-power">--</span></div>
+      <div class="stat-row"><span class="stat-label">Efficiency</span><span class="stat-value" id="s-efficiency">--</span></div>
+      <div class="stat-row"><span class="stat-label">Voltage</span><span class="stat-value" id="s-voltage">--</span></div>
+      <div class="stat-row"><span class="stat-label">Avg Board Temp</span><span class="stat-value" id="s-board-temp">--</span></div>
+      <div class="stat-row"><span class="stat-label">Avg Chip Temp</span><span class="stat-value" id="s-chip-temp">--</span></div>
+      <div class="stat-row"><span class="stat-label">Fan Speed</span><span class="stat-value" id="s-fan">--</span></div>
+      <div class="stat-row" id="s-mrr-row" style="display:none;align-items:center">
+        <span class="stat-label">MRR</span>
+        <span class="stat-value" id="s-mrr" style="font-size:0.8em;line-height:1.3">--</span>
+      </div>
+      <div id="s-mrr-actions" style="display:none;text-align:right;margin-top:6px">
+        <button class="secondary" data-action="mrrResyncNow" title="Push current tuner state to MiningRigRentals now (ignores cache — always calls MRR)" style="font-size:0.75em;padding:2px 8px">Resync MRR</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Tuning Phase <span id="detail-tuner-bucket" class="phase-pill"></span></h2>
+      <div class="phase-indicator" id="phase-dots"></div>
+      <div class="phase-detail" id="phase-detail">Not started</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btn-start" data-action="startTuning">Start Tuning</button>
+        <button id="btn-stop" class="danger" data-action="stopTuning" disabled>Stop</button>
+        <button class="secondary" data-action="deleteProfile">Reset Profile</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Stock vs Tuned</h2>
+      <div class="stat-row"><span class="stat-label">Metric</span><span class="stat-label">Stock / Tuned</span></div>
+      <div class="stat-row"><span class="stat-label">Hashrate</span><span class="stat-value" id="c-hashrate">--</span></div>
+      <div class="stat-row"><span class="stat-label">Power</span><span class="stat-value" id="c-power">--</span></div>
+      <div class="stat-row"><span class="stat-label">Efficiency</span><span class="stat-value" id="c-efficiency">--</span></div>
+      <div class="stat-row"><span class="stat-label">Improvement</span><span class="stat-value good" id="c-improvement">--</span></div>
+      <div class="stat-row" id="c-profit-row" style="display:none">
+        <span class="stat-label">Profit ($/day)</span>
+        <span class="stat-value" id="c-profit">--</span>
+      </div>
+      <div class="stat-row" id="c-profit-delta-row" style="display:none">
+        <span class="stat-label">Profit Δ</span>
+        <span class="stat-value" id="c-profit-delta">--</span>
+      </div>
+      <div style="margin-top:10px;text-align:right">
+        <button class="secondary" data-action="resetStockBaseline" title="Delete the saved stock baseline so the next Start Tuning re-captures it. Use after a hashboard swap, PSU change, or firmware flash — not for routine retunes." style="font-size:0.75em;padding:2px 8px">Reset stock baseline</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="vf-surface-card" style="margin-bottom:12px;display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 style="margin-bottom:0">V/F Efficiency Surface</h2>
+      <div style="font-size:0.8em;color:var(--text2)" id="vf-surface-summary">—</div>
+    </div>
+    <div id="vf-surface-description" style="color:var(--text2);font-size:0.85em;margin-bottom:8px">Phase V coarse grid — uniform-frequency J/TH at each (voltage, freq) point. Best point bordered in gold; top-K voltages (selected for per-chip refinement) bordered in blue. Click any cell for details.</div>
+    <div id="vf-progress" style="display:none;margin-bottom:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;font-size:0.82em"></div>
+    <div id="vf-remeasure-bar" style="display:none;margin-bottom:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--accent);border-radius:6px;font-size:0.82em;align-items:center;gap:10px;flex-wrap:wrap">
+      <span id="vf-remeasure-count" style="color:var(--accent);font-weight:600"></span>
+      <span id="vf-remeasure-items" style="color:var(--text2);font-family:monospace;font-size:0.9em;flex:1;min-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <button class="secondary" data-action="processRemeasureQueue" id="vf-remeasure-process-btn" style="padding:4px 10px">Process now</button>
+      <button class="secondary" data-action="clearRemeasureQueue" style="padding:4px 10px">Clear</button>
+    </div>
+    <div id="vf-surface-grid" style="overflow:auto" tabindex="0" aria-label="V/F Efficiency Surface — use arrow keys to navigate cells, Enter for details"></div>
+    <div id="vf-surface-legend" style="display:flex;gap:16px;margin-top:10px;font-size:0.75em;color:var(--text2);flex-wrap:wrap;align-items:center"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2 style="margin-bottom:0" id="top-tunes-title">Best Tunes</h2>
+      <div style="display:flex;gap:6px">
+        <button class="secondary" data-action="exportResults" data-arg-format="json" title="Download full bundle: stock+tuned, all sweep results with per-board data, config used">Export JSON</button>
+        <button class="secondary" data-action="exportResults" data-arg-format="csv" title="Download voltage sweep + per-board data as CSV">Export CSV</button>
+      </div>
+    </div>
+    <div id="voltage-results"><div class="stat-row"><span class="stat-label">No voltage sweep data yet</span></div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-action="switchTab" data-arg-tab="charts">Charts</div>
+    <div class="tab" data-action="switchTab" data-arg-tab="heatmap">Chip Heatmap</div>
+    <div class="tab" data-action="switchTab" data-arg-tab="log">Tuning Log</div>
+    <div class="tab" data-action="switchTab" data-arg-tab="config">Configuration</div>
+  </div>
+
+  <div class="tab-content active" id="tab-charts">
+    <div class="metrics-range-bar">
+      <label for="metrics-range">Range</label>
+      <select id="metrics-range" data-change-action="setMetricsRange">
+        <option value="1h">Last 1 hour (live)</option>
+        <option value="24h">Last 24 hours</option>
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="custom">Custom…</option>
+      </select>
+      <span class="metrics-range-custom" id="metrics-range-custom" style="display:none">
+        From <input type="datetime-local" id="metrics-range-from">
+        to <input type="datetime-local" id="metrics-range-to">
+        <button data-action="applyCustomMetricsRange" class="btn btn-sm">Apply</button>
+      </span>
+      <span class="metrics-range-status" id="metrics-range-status"></span>
+    </div>
+    <div class="grid grid-2">
+      <div class="card"><h2>Hashrate (TH/s)</h2><div class="chart-container"><canvas id="chart-hashrate"></canvas></div></div>
+      <div class="card"><h2>Power (W)</h2><div class="chart-container"><canvas id="chart-power"></canvas></div></div>
+      <div class="card"><h2>Efficiency (J/TH)</h2><div class="chart-container"><canvas id="chart-efficiency"></canvas></div></div>
+      <div class="card wattage-chart-card"><h2>Wattage Search (Braiins)</h2><div class="chart-container"><canvas id="chart-wattage"></canvas></div></div>
+      <div class="card"><h2>Temperature (C)</h2><div class="chart-container"><canvas id="chart-temp"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-heatmap">
+    <div class="card">
+      <div class="heatmap-split">
+        <div class="heatmap-pane">
+          <div class="heatmap-section-label">Live</div>
+          <div class="heatmap-controls">
+            <button class="active" data-action="setHeatmapMode" data-arg-mode="freq" data-arg-side="left">Frequency</button>
+            <button data-action="setHeatmapMode" data-arg-mode="health" data-arg-side="left">Health Score</button>
+            <button data-action="setHeatmapMode" data-arg-mode="temp" data-arg-side="left">Chip Temperature</button>
+            <button data-action="setHeatmapMode" data-arg-mode="hashrate" data-arg-side="left">Hashrate</button>
+          </div>
+          <div id="heatmap-preview-banner" style="display:none;margin-bottom:8px;padding:8px 12px;background:rgba(88,166,255,0.08);border-left:3px solid var(--accent);border-radius:3px;font-size:0.85em;align-items:center;gap:12px">
+            <span style="flex:1">▶ Previewing <b id="heatmap-preview-voltage">--</b> profile snapshot — not live</span>
+            <button class="secondary" data-action="clearHeatmapPreview" style="font-size:0.75em;padding:2px 8px">Clear</button>
+          </div>
+          <div class="heatmap-container">
+            <canvas id="heatmap-left" class="heatmap-canvas"></canvas>
+            <div class="tooltip" id="heatmap-tooltip-left"></div>
+          </div>
+          <div id="hm-board-labels-left" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:0.75em;color:var(--text2)"></div>
+        </div>
+        <div class="heatmap-pane">
+          <div class="heatmap-section-label">Phase 2 Baseline</div>
+          <div class="heatmap-controls">
+            <button class="active" data-action="setHeatmapMode" data-arg-mode="p2_freq" data-arg-side="right">Frequency</button>
+            <button data-action="setHeatmapMode" data-arg-mode="p2_health" data-arg-side="right">Health Score</button>
+            <button data-action="setHeatmapMode" data-arg-mode="p2_temp" data-arg-side="right">Chip Temperature</button>
+            <button data-action="setHeatmapMode" data-arg-mode="p2_hashrate" data-arg-side="right">Hashrate</button>
+          </div>
+          <div class="heatmap-section-label" style="margin-top:8px">Stock Baseline</div>
+          <div class="heatmap-controls">
+            <button data-action="setHeatmapMode" data-arg-mode="stock_freq" data-arg-side="right">Frequency</button>
+            <button data-action="setHeatmapMode" data-arg-mode="stock_health" data-arg-side="right">Health Score</button>
+            <button data-action="setHeatmapMode" data-arg-mode="stock_temp" data-arg-side="right">Chip Temperature</button>
+            <button data-action="setHeatmapMode" data-arg-mode="stock_hashrate" data-arg-side="right">Hashrate</button>
+          </div>
+          <div class="heatmap-container">
+            <canvas id="heatmap-right" class="heatmap-canvas"></canvas>
+            <div class="tooltip" id="heatmap-tooltip-right"></div>
+          </div>
+          <div id="hm-board-labels-right" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;font-size:0.75em;color:var(--text2)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-log">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <h2>Tuning Log</h2>
+        <button class="secondary" data-action="downloadLog">Download</button>
+      </div>
+      <div class="log-container" id="log-container"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-config">
+    <div class="card">
+      <div id="config-errors" style="display:none;background:#5c1a1a;border:1px solid #ff4444;border-radius:6px;padding:8px 12px;margin-bottom:12px;color:#ff8888;font-size:13px"></div>
+      <div id="config-success" style="display:none;background:#1a3d1a;border:1px solid #44aa44;border-radius:6px;padding:8px 12px;margin-bottom:12px;color:#88cc88;font-size:13px">Configuration saved</div>
+      <div id="config-form-root"></div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end">
+        <button data-action="saveConfig">Save Config</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

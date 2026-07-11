@@ -1,0 +1,55 @@
+name: Hardware validation result
+description: Share a supervised, sanitized platform/model test result.
+title: "[Validation]: "
+labels:
+  - hardware-validation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A result applies only to the exact model, hashboard, PSU, and firmware tested. Do not publish serials, IP/MAC addresses, credentials, workers, wallets, or site details.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - epic
+        - luxos
+        - braiins
+        - bixbit
+        - whatsminer
+    validations:
+      required: true
+  - type: input
+    id: combination
+    attributes:
+      label: Model / board / PSU / firmware combination
+      description: Omit all unique device identifiers.
+    validations:
+      required: true
+  - type: textarea
+    id: coverage
+    attributes:
+      label: Operations exercised
+      description: Scanner/auth, telemetry comparison, control actions, tuning phases, restart/resume, reset, thermal response, and soak duration.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result and limitations
+      description: Include unexpected behavior and anything not tested. Do not generalize beyond this combination.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I owned or was explicitly authorized to operate the tested hardware.
+          required: true
+        - label: Independent hardware and firmware protections remained enabled.
+          required: true
+        - label: I removed every unique device, account, and deployment identifier.
+          required: true
+

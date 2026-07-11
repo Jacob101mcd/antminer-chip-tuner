@@ -1,0 +1,108 @@
+.kpi-value { font-size:1.8em; font-weight:700; margin-top:4px; }
+.kpi-sub { color:var(--text2); font-size:0.8em; margin-top:4px; }
+.filter-group { display:inline-flex; align-items:center; gap:4px; margin-right:16px; }
+.filter-label { color:var(--text2); font-size:0.8em; margin-right:4px; text-transform:uppercase; letter-spacing:0.5px; }
+#filter-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.chip { background:var(--bg3); color:var(--text); border:1px solid var(--border); padding:4px 10px; border-radius:999px; cursor:pointer; font-size:0.8em; }
+.chip:hover { background:var(--bg); }
+.chip.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+.model-filter { position:relative; display:inline-block; }
+.model-filter > summary { background:var(--bg3); color:var(--text); border:1px solid var(--border); padding:4px 28px 4px 10px; border-radius:999px; cursor:pointer; font-size:0.8em; list-style:none; user-select:none; position:relative; }
+.model-filter > summary::-webkit-details-marker { display:none; }
+.model-filter > summary::after { content:'▾'; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:0.7em; }
+.model-filter[open] > summary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.model-filter[open] > summary::after { color:#fff; }
+.model-filter-menu { position:absolute; top:calc(100% + 4px); left:0; min-width:200px; max-width:320px; max-height:320px; overflow-y:auto; background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:8px; z-index:50; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+.model-filter-actions { display:flex; gap:6px; margin-bottom:6px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.model-filter-actions button { padding:2px 10px; font-size:0.75em; }
+.model-filter-option { display:flex; align-items:center; gap:6px; padding:4px 6px; border-radius:4px; cursor:pointer; font-size:0.85em; }
+.model-filter-option:hover { background:var(--bg3); }
+.model-filter-option input[type="checkbox"] { margin:0; cursor:pointer; }
+.model-filter-empty { color:var(--text2); font-size:0.8em; padding:6px; font-style:italic; }
+#bulk-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#miner-table { width:100%; border-collapse:collapse; font-size:0.85em; }
+#miner-table th { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); color:var(--text2); font-weight:500; position:sticky; top:0; background:var(--bg2); }
+#miner-table td { padding:8px 10px; border-bottom:1px solid var(--border); }
+#miner-table tr:hover td { background:var(--bg3); }
+#miner-table a { color:var(--accent); text-decoration:none; font-weight:500; }
+#miner-table a:hover { text-decoration:underline; }
+.state-pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.75em; font-weight:600; background:var(--bg3); }
+.state-mining { background:rgba(76,175,80,0.18); color:var(--green); }
+.state-not_mining, .state-stopped { background:rgba(244,67,54,0.18); color:var(--red); }
+.state-unknown { background:rgba(139,143,163,0.18); color:var(--text2); }
+.phase-pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.75em; background:var(--bg3); color:var(--text2); }
+.phase-pill.tuning { background:rgba(91,138,245,0.18); color:var(--accent); }
+.phase-pill.maintaining { background:rgba(76,175,80,0.18); color:var(--green); }
+.phase-pill.error { background:rgba(244,67,54,0.18); color:var(--red); }
+.phase-pill.offline { background:rgba(255,152,0,0.18); color:var(--orange); }
+.phase-pill.stopped { background:rgba(244,67,54,0.18); color:var(--red); }
+.phase-pill.stopping { background:rgba(255,193,7,0.18); color:var(--yellow); }
+.phase-pill.idle { background:var(--bg3); color:var(--text2); }
+.state-offline { background:rgba(255,152,0,0.18); color:var(--orange); }
+.offline-banner { background:rgba(255,152,0,0.12); border:1px solid var(--orange); border-radius:8px; padding:12px 16px; margin-bottom:12px; color:var(--orange); }
+.offline-banner .dim { color:var(--text2); font-size:0.85em; margin-top:4px; }
+.offline-muted { opacity:0.55; }
+.offline-muted-tag { font-size:0.7em; color:var(--text2); margin-left:4px; }
+@keyframes offlinepulse { 0%,100% { opacity:1 } 50% { opacity:0.5 } }
+.phase-dot.offline { border-color:var(--orange); background:var(--orange); color:#fff; animation:offlinepulse 1.6s ease-in-out infinite; }
+/* ─── Customizable columns modal (Unit 5) ─────────────────────────── */
+.col-prefs-presets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.col-prefs-presets button {
+  padding: 4px 12px;
+  font-size: 0.8em;
+}
+.col-prefs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 380px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.col-prefs-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: grab;
+  user-select: none;
+  background: var(--bg2);
+}
+.col-prefs-list li:last-child {
+  border-bottom: none;
+}
+.col-prefs-list li:hover {
+  background: var(--bg3);
+}
+.col-prefs-list li.dragging {
+  opacity: 0.4;
+}
+.col-prefs-list li.drag-over {
+  border-top: 2px solid var(--accent);
+}
+.col-prefs-list .drag-handle {
+  color: var(--text2);
+  cursor: grab;
+  user-select: none;
+  font-weight: 700;
+  letter-spacing: -2px;
+}
+.col-prefs-list label {
+  display: inline;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.col-prefs-list input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}

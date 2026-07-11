@@ -1,0 +1,103 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fnil\fcharset0 HelveticaNeue-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid1\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid101\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid102\'02\'01.;}{\levelnumbers\'01;}\fi-360\li1440\lin1440 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid201\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid3}
+{\list\listtemplateid4\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid301\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid4}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab560
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f0\fs26 \cf0 Main Fan power varies from 0w -> 307.2w (S21). Scales percentage?\
+PSU fan power constant 11w\
+Control board power: ???\
+\
+S21: 108 chips per board\
+S19: 88 chips per board\
+\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f1\b \cf0 Stock: Constant hashrate mode: variable voltage (sometimes), fixed frequency
+\f0\b0 \
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f1\b \cf0 Efficiency Target Mode: constant voltage, variable frequency\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f0\b0 \cf0 Requires: Max spread (optional)\
+\
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls1\ilvl0\cf0 {\listtext	0.	}Retrieve min/max voltage setting\
+{\listtext	0.	}Set target temperature, set hot temperature, set danger temperature per model\
+{\listtext	0.	}Set minimum voltage, and minimum frequency\
+{\listtext	0.	}Increase frequency by steps. Record the highest stable frequency for each chip.\
+{\listtext	0.	}Repeat 4 until spread across board is maxed, or until all chips have reached max stable frequency\
+{\listtext	0.	}Check occasionally for unhealthy chips and lower frequency\
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 \
+Notes: unlikely to reach max PSU wattage, max voltage/frequency, or max out fans, but these things should be checked. Power draw will vary throughout the day due to different fan speeds being required to maintain constant temperature.\
+\
+\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f1\b \cf0 Constant Power Mode: variable voltage, variable frequency\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f0\b0 \cf0 Requires: Max spread (optional), power draw model
+\f1\b \
+
+\f0\b0 \
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls2\ilvl0\cf0 {\listtext	0.	}Retrieve min/max voltage setting, min/max frequency setting\
+{\listtext	0.	}Set target, hot, danger temperatures\
+{\listtext	0.	}Set max voltage, min frequency\
+{\listtext	0.	}Increase frequency until power limit or target temperature has been reached\
+{\listtext	0.	}Lower voltage by constant amount, then increase frequency until power limit/temp target reached again. If any chips unstable, revert them to old frequency\
+{\listtext	0.	}Repeat step 5 until chip spread is too high or you are unable to reach power limit/temp target while maintaining stability\
+{\listtext	0.	}Check power draw and temp occasionally. \
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls2\ilvl1\cf0 {\listtext	0.	}If the power draw/temp is higher than expected, lower voltage, then lower frequency of unstable chips accordingly. \
+{\listtext	0.	}If the power draw/temp is lower than expected, increase frequency, increasing voltage if any unstable chips appear.\
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 \
+Notes: Will result in variable hashrate throughout the day, but near constant power draw.\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f1\b \cf0 Profitability target mode: variable voltage, variable frequency\
+\
+\pard\pardeftab560\slleading20\partightenfactor0
+
+\f0\b0 \cf0 Requires: API to $/TH data (e.g. Minerstat), max spread, power draw model\
+\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
+\cf0 \
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 \
+Stage 1: Collect Stats - Runs once\
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls3\ilvl0\cf0 {\listtext	0.	}Retrieve min/max voltage setting, min/max frequency setting\
+{\listtext	0.	}Set target, hot, danger temperatures, set fans to max\
+{\listtext	0.	}Set min voltage, min frequency\
+{\listtext	0.	}Increase frequency of all chips until spread is met or max freq for each chip is found\
+{\listtext	0.	}Record hashrate, voltage, temp, and stable frequencies, increase voltage\
+{\listtext	0.	}Repeat steps 4/5 until power limit, temp limit, or max freq / max voltage is reached\
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 \
+Stage 2: Apply most profitable settings - Runs occasionally\
+\pard\pardeftab560\pardirnatural\partightenfactor0
+\ls4\ilvl0\cf0 {\listtext	0.	}Retrieve API data and miner data\
+{\listtext	0.	}Find the most profitable voltage level, and apply frequencies.\
+{\listtext	0.	}If running temperature is significantly different from Stage 1 model, apply modifier to data, and check most profitable profile again\
+\pard\pardeftab560\slleading20\partightenfactor0
+\cf0 \
+Adjust freq/voltage for temp changes??\
+\
+\
+}

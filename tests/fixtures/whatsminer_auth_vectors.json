@@ -1,0 +1,12 @@
+{
+  "_meta_generated_with": "tests/fixtures/whatsminer_auth_vectors_generate.sh — openssl passwd -1 + python cryptography",
+  "password": "admin",
+  "salt": "abcdefgh",
+  "newsalt": "1234567",
+  "time": "20250509120000",
+  "expected_md5crypt_hash": "l/LAqC8oJERu7Cmx6trtY/",
+  "expected_aeskey_hex": "82973047b2f41349e09622da616b962de94aeac6bad21285bc35c6769dd97fe5",
+  "expected_sign": "W5ylkpVu/w4cK5Ud/9QVK0",
+  "round_trip_plaintext": "{\"cmd\":\"get_version\"}",
+  "round_trip_ciphertext_b64": "fhyv9ee2ArLShd3TVt5xkln53k76jhJ3tow4Uh/iPa0="
+}

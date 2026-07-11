@@ -1,0 +1,14 @@
+:root {
+  --bg: #0f1117; --bg2: #1a1d27; --bg3: #242836;
+  --text: #e0e0e0; --text2: #8b8fa3; --accent: #5b8af5;
+  --green: #4caf50; --yellow: #ffc107; --orange: #ff9800; --red: #f44336;
+  --border: #2d3142;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+.container { max-width:1600px; margin:0 auto; padding:16px; }
+h1 { font-size:1.4em; font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+h1 .badge { font-size:0.6em; background:var(--accent); padding:2px 8px; border-radius:4px; color:#fff; text-decoration:none; }
+h1 a.badge:hover { filter:brightness(1.15); }
+h2 { font-size:1.1em; font-weight:500; margin-bottom:8px; color:var(--text2); }
+@media (max-width:900px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
